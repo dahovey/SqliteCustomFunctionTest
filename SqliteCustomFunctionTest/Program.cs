@@ -23,26 +23,27 @@ namespace SqliteCustomFunctionTest
 
             while (true)
             {
-                using (var conn = new SqliteConnection($"Filename={testDbFilename}"))
+                var conn = new SqliteConnection($"Filename={testDbFilename}");
+
+                conn.Open();
+
+                using (new CustomFunction1(conn))
                 {
-                    conn.Open();
-
-                    using (new CustomFunction1(conn))
+                    using (var comm = conn.CreateCommand())
                     {
-                        using (var comm = conn.CreateCommand())
-                        {
-                            comm.CommandText = $"SELECT {CustomFunction1.Name}()";
+                        comm.CommandText = $"SELECT {CustomFunction1.Name}()";
 
-                            var value = comm.ExecuteScalar();
+                        var value = comm.ExecuteScalar();
 
-                            if (value == null)
-                                Console.WriteLine("Return: (null)");
-                            else
-                                Console.WriteLine($"Return: {value}");
-                        }
-
+                        if (value == null)
+                            Console.WriteLine("Return: (null)");
+                        else
+                            Console.WriteLine($"Return: {value}");
                     }
+
                 }
+                
+                conn.Dispose();
             }
         }
     }
